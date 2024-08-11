@@ -1,0 +1,19 @@
+header {
+    margin-top: 10px;
+    display: flex;
+    width: 100%;
+}
+
+.css-usrzw8-MuiStack-root {
+    width: 90%;
+}
+
+.chat-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 80%;
+}
+
+.css-usrzw8-MuiStack-root {
+    height: 600px;
+}

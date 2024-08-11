@@ -1,44 +1,40 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
 
 const systemPrompt = "An AI-powered customer support tool for HeadStartAI, a platform that provides AI-driven interviews for software engineers.";
 
 export async function POST(req) {
   try {
-    const openai = new OpenAI()
-    const data = await req.json()
-    
-    const completionStream = openai.chat.completions.create({
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...data.messages,
-      ],
-      model: "gpt-4o-mini",
-      stream: true,
-    })
+    const data = await req.json();
+    console.log('Request data:', data);
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        const encoder = new TextEncoder()
-        try {
-          for await (const chunk of completionStream) {
-            const content = chunk.choices[0]?.delta?.content
-            if (content) {
-              const text = encoder.encode(content)
-              controller.enqueue(text)
-            }
-          }
-        } catch (err) {
-          controller.error(err);
-        } finally {
-          controller.close();
-        }
+    const apiKey = process.env.HUGGINGFACE_API_KEY;
+
+    const response = await fetch('https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
-    })
+      body: JSON.stringify({
+        inputs: data.messages.map(msg => msg.content).join('\n'),
+      })
+    });
 
-    return new NextResponse(stream);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response from Hugging Face API:', errorText);
+      throw new Error('Network response was not ok');
+    }
+
+    const result = await response.json();
+    console.log('Response from Hugging Face API:', result);
+
+    // Check the structure of the response and extract the appropriate content
+    const content = result.generated_text || result[0]?.generated_text || "No response generated";
+
+    return NextResponse.json({ content });
   } catch (err) {
-    console.error('Error in POST request:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error in POST request:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
