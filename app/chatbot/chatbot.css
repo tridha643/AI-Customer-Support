@@ -4,16 +4,19 @@ header {
     width: 100%;
 }
 
-.css-usrzw8-MuiStack-root {
-    width: 95%;
-}
 
 .chat-container {
     flex-grow: 1;
     overflow-y: auto;
-    max-height: 80%;
 }
 
-.css-usrzw8-MuiStack-root {
-    height: 600px;
+.message-box {
+  max-width: 80%;
+  word-wrap: break-word;
+  text-align: left;
 }
+
+.message-box.MuiBox-root.css-hjlwmu {
+    background-color: #00c591; /* Change this to your desired color */
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  }
